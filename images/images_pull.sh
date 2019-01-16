@@ -16,3 +16,6 @@ for imageName in ${images[@]} ; do
   docker tag mirrorgooglecontainers/$imageName k8s.gcr.io/$imageName
   docker rmi mirrorgooglecontainers/$imageName
 done
+
+# flannel
+docker pull quay.io/coreos/flannel:v0.9.1-amd64
