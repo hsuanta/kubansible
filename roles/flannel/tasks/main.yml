@@ -1,0 +1,14 @@
+- block:
+  - name: send kube-flannel config
+    template:
+      src: kube-flannel.yml.j2
+      dest: ~/kube-flannel.yml
+
+  - name: aplly yaml file
+    command: |
+      kubectl
+      --kubeconfig /etc/kubernetes/admin.conf
+      apply -f ~/kube-flannel.yml
+
+  delegate_to: "{{ groups.cluster[0] }}"
+  run_once: true

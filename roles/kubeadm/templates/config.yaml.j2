@@ -1,0 +1,24 @@
+apiVersion: kubeadm.k8s.io/v1alpha1
+kind: MasterConfiguration
+etcd:
+  endpoints:
+{% for host in groups.etcd %}
+  - https://{{ hostvars[host].ansible_default_ipv4.address }}:2379
+{% endfor %}
+  caFile: "{{ ETCD_CA_CRT }}"
+  certFile: "{{ ETCD_CRT }}"
+  keyFile: "{{ ETCD_KEY }}"
+kubernetesVersion: v{{ k8s_ver }}
+networking:
+  dnsDomain: "{{ cluster_domain }}"
+  podSubnet: "{{ pod_network }}"
+imageRepository: k8s.gcr.io
+featureGates:
+  CoreDNS: false
+apiServerCertSANs:
+- {{ master_addr }}
+{% for host in groups.cluster %}
+- {{ hostvars[host].ansible_default_ipv4.address }}
+{% endfor %}
+apiServerExtraArgs:
+  apiserver-count: "3"

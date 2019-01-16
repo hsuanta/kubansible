@@ -1,0 +1,28 @@
+- name: install etcd
+  yum: 
+    name: 
+      - etcd
+    state: installed
+    # update_cache: yes
+
+- name: deliver etcd pki
+  copy:
+    src: "{{ base_dir }}/pki/{{ item }}"
+    dest: "/etc/etcd/"
+  with_items:
+  - ca.crt
+  - etcd.key
+  - etcd.crt
+
+- name: etcd config
+  template:
+    src: etcd.conf.j2
+    dest: /etc/etcd/etcd.conf
+    # backup: yes
+  # notify: restart etcd
+
+- name: start etcd
+  systemd:
+    name: etcd
+    enabled: yes
+    state: started

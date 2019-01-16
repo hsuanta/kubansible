@@ -1,0 +1,71 @@
+- block:
+  - name: create directory
+    file:
+      path: "{{ PKI_DIR }}"
+      state: directory
+
+  - name: Generate etcd-ca key
+    command: "openssl genrsa -out {{ ETCD_CA_KEY }} 2048"
+
+  - name: Generate etcd-ca certificate
+    command: |
+      openssl req -x509 -new -nodes
+      -subj "/CN=kubernetes"
+      -days 36500
+      -key {{ ETCD_CA_KEY }}
+      -out {{ ETCD_CA_CRT }}
+
+  - name: Generate etcd key
+    command: "openssl genrsa -out {{ ETCD_KEY }} 2048"
+
+# You need to have pyOpenSSL>=0.15 to generate CSRs
+#  - name: Generate Certificate Signing Request
+#    openssl_csr:
+#      path: "{{ ETCD_CSR }}"
+#      privatekey_path: "{{ ETCD_KEY }}"
+#      subject_alt_name: 'IP:127.0.0.1,IP:192.168.0.22'
+#      key_usage:
+#      - critical
+#      - digitalSignature
+#      - keyEncipherment
+#      extended_key_usage:
+#      - serverAuth
+
+  - name: Generate Certificate Signing Request config
+    template:
+      src: etcd-csr.conf.j2
+      dest: "{{ ETCD_CSR_CONF }}"
+
+  - name: Generate Certificate Signing Request
+    command: |
+      openssl req -new
+      -key {{ ETCD_KEY }}
+      -out {{ ETCD_CSR }}
+      -config {{ ETCD_CSR_CONF }}
+
+  - name: Generate etcd certificate
+    command: |
+      openssl x509 -req
+      -CAcreateserial
+      -extensions v3_ext
+      -days 36500
+      -CA {{ ETCD_CA_CRT }}
+      -CAkey {{ ETCD_CA_KEY }}
+      -extfile {{ ETCD_CSR_CONF }}
+      -in {{ ETCD_CSR }}
+      -out {{ ETCD_CRT }}
+
+  - name: Generate Service Account private key
+    command: |
+      openssl genrsa -out {{ SA_KEY }} 2048
+
+  - name: Generate Service Account public key
+    command: |
+      openssl rsa
+      -pubout
+      -in {{ SA_KEY }}
+      -out {{ SA_PUB }}
+
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+

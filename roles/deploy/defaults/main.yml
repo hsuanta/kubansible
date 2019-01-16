@@ -1,0 +1,10 @@
+PKI_DIR: "{{ base_dir }}/pki"
+ETCD_CA_KEY: "{{ PKI_DIR }}/ca.key"
+ETCD_CA_CRT: "{{ PKI_DIR }}/ca.crt"
+ETCD_KEY: "{{ PKI_DIR }}/etcd.key"
+ETCD_CSR_CONF: "{{ PKI_DIR }}/etcd-csr.conf"
+ETCD_CSR: "{{ PKI_DIR }}/etcd.csr"
+ETCD_CRT: "{{ PKI_DIR }}/etcd.crt"
+
+SA_KEY: "{{ PKI_DIR }}/sa.key"
+SA_PUB: "{{ PKI_DIR }}/sa.pub"

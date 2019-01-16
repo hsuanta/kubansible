@@ -1,0 +1,33 @@
+global_defs {
+    router_id k8s{{ ansible_default_ipv4.address.split('.')[-1] }}
+}
+
+vrrp_script CHK_API {
+    script "/usr/bin/curl -k https://localhost:6443"
+    interval 5
+    weight -20
+}
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface {{ ansible_default_ipv4.interface }}
+    virtual_router_id {{ ROUTER_ID }}
+    priority {{ 99 | random(81, 1) }}
+    advert_int 3
+    unicast_src_ip {{ ansible_default_ipv4.address }}
+    unicast_peer {
+{% for h in groups['ha'] %}{% if h != ansible_default_ipv4.address %}
+        {{ h }}
+{% endif %}{% endfor %}
+    }
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress {
+        {{ master_addr }}
+    }
+    track_script {
+       CHK_API
+    }
+}

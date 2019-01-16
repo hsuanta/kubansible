@@ -1,0 +1,21 @@
+# [optional] to synchronize time of nodes with 'chrony'
+- hosts: all
+  roles:
+  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
+
+# to create CA on 'deploy' node
+- hosts: deploy
+  roles:
+  - deploy
+
+- hosts: cluster
+  roles:
+  - common
+  - docker
+  - etcd
+  - kubeadm
+  - { role: flannel, when: "network_cni == 'flannel'" }
+
+- hosts: ha
+  roles:
+  - keepalived

@@ -1,0 +1,12 @@
+- name: add kubeconfig
+  lineinfile:
+      path: ~/.bash_profile
+      line: "export KUBECONFIG=/etc/kubernetes/admin.conf"
+
+- name: remove master role
+  command: |
+      kubectl
+      --kubeconfig /etc/kubernetes/admin.conf
+      taint nodes --all node-role.kubernetes.io/master-
+  delegate_to: "{{ groups.cluster[0] }}"
+  run_once: true

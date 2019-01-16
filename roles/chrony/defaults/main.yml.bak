@@ -1,0 +1,3 @@
+# 设置时间源服务器
+ntp_server: "ntp1.aliyun.com"
+

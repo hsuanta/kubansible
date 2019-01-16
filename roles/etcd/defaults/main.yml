@@ -1,0 +1,9 @@
+# etcd 集群间通信的IP和端口, 根据etcd组成员自动生成
+NODES: "{% for h in groups['etcd'] %}{{ hostvars[h]['node_name'] }}=https://{{ h }}:2380,{% endfor %}"
+ETCD_NODES: "{{ NODES.rstrip(',') }}"
+
+ETCD_PKI_DIR: "/etc/etcd"
+# ETCD_CA_KEY: "{{ ETCD_PKI_DIR }}/ca.key"
+ETCD_CA_CRT: "{{ ETCD_PKI_DIR }}/ca.crt"
+ETCD_KEY: "{{ ETCD_PKI_DIR }}/etcd.key"
+ETCD_CRT: "{{ ETCD_PKI_DIR }}/etcd.crt"

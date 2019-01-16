@@ -1,0 +1,70 @@
+
+- name: 设置主机名
+  # raw: "echo {{ hostname|quote }} > /etc/hostname"
+  hostname: 
+    name: "{{ hostname }}"
+
+- name: 设置hosts
+#  lineinfile:
+#    dest: /etc/hosts
+#    line: "{{ ansible_default_ipv4.address }} {{ hostname }}"
+  template: 
+    src: hosts.j2
+    dest: /etc/hosts
+    backup: yes
+
+- name: 禁用系统 swap
+  shell: swapoff -a
+  ignore_errors: true
+
+- name: 删除fstab swap 相关配置
+  lineinfile:
+    path: /etc/fstab
+    regexp: 'swap'
+    state: absent
+    backup: 'yes'
+
+- name: 加载内核模块
+  modprobe: name={{ item }} state=present
+  with_items:
+    - br_netfilter
+  ignore_errors: true
+
+- name: 设置系统参数
+  copy:
+    src=95-k8s.conf
+    dest=/etc/sysctl.d/95-k8s.conf
+
+- name: 生效系统参数
+  shell: "sysctl -p /etc/sysctl.d/95-k8s.conf"
+  ignore_errors: true
+
+- name: 临时关闭 selinux
+  shell: "setenforce 0"
+  ignore_errors: true
+
+- name: 永久关闭 selinux
+  lineinfile:
+    dest: /etc/selinux/config
+    regexp: "^SELINUX="
+    line: "SELINUX=disabled"
+ 
+- name: 设置 Centos ulimits
+  template:
+    src=30-k8s.conf.j2
+    dest=/etc/security/limits.d/30-k8s.conf
+
+- name: 禁用 firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: install basic packages
+  yum:
+    name:
+    - bash-completion
+    - lsof
+    - net-tools
+    # - psmisc
+    state: latest

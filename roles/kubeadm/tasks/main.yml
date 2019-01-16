@@ -1,0 +1,58 @@
+- name: add kubernetes repo
+  copy: src=kubernetes.repo dest=/etc/yum.repos.d/kubernetes.repo
+
+- name: update repo cache for the new repo
+  command: yum -q makecache -y --disablerepo=* --enablerepo=kubernetes
+
+- name: install kubeadm
+  yum: 
+    name: 
+      - kubeadm-{{ k8s_ver }}-0
+      - kubectl-{{ k8s_ver }}-0
+      - kubelet-{{ k8s_ver }}-0
+    state: installed
+    # update_cache: yes
+
+- name: set cgroup driver
+  replace:
+    dest: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+    regexp: '^(.*?cgroup-driver=).*?$'
+    replace: '\1cgroupfs"'
+
+- name: enable kubelet
+  systemd:
+    name: kubelet
+    enabled: yes
+
+- name: kubeadm config
+  template:
+    src=config.yaml.j2
+    dest=~/cluster_config.yaml
+    
+- name: create directory
+  file:
+    path: "/etc/kubernetes/pki"
+    state: directory
+
+- name: deliver pki
+  copy:
+    src: "{{ base_dir }}/pki/{{ item }}"
+    dest: "/etc/kubernetes/pki/"
+  with_items:
+  - ca.key
+  - ca.crt
+  - sa.key
+  - sa.pub
+
+- name: create cluster
+  command: "kubeadm init --config ~/cluster_config.yaml"
+  notify: 
+  - add kubeconfig
+  - remove master role
+
+- name: add bash completion
+  lineinfile:
+    dest: ~/.bashrc
+    state: present
+    regexp: 'kubectl completion'
+    line: 'source <(kubectl completion bash)'

@@ -1,0 +1,14 @@
+apiVersion: kubeadm.k8s.io/v1alpha1
+kind: MasterConfiguration
+imageRepository: gcr.io/google_containers
+kubernetesVersion: v{{ k8s_ver }}
+networking:
+  podSubnet: 10.244.0.0/16
+imageRepository: k8s.gcr.io
+featureGates:
+  CoreDNS: false
+apiServerCertSANs:
+- {{ master_addr }}
+{% for host in groups.cluster %}
+- {{ hostvars[host].ansible_default_ipv4.address }}
+{% endfor %}

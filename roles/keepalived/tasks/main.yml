@@ -1,0 +1,26 @@
+- name: install keepalived
+  yum:
+    name: keepalived
+    state: latest
+  tags: reset_ha
+
+- name: copy master config
+  template:
+    src: keepalived-master.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  when: ha_role == "master"
+  tags: reset_ha
+
+- name: copy slave config
+  template:
+    src: keepalived-slave.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  when: ha_role == "slave"
+  tags: reset_ha
+
+- name: start keepalived
+  systemd:
+    name: keepalived
+    state: restarted
+    enabled: yes
+  tags: reset_ha

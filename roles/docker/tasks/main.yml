@@ -1,0 +1,34 @@
+
+- name: add docker repo
+  copy: src=docker-ce.repo dest=/etc/yum.repos.d/docker-ce.repo
+
+# - name: update repo cache for the new repo
+  # command: yum -q makecache -y --disablerepo=* --enablerepo=docker-ce-stable
+
+- name: install docker-ce
+  yum: 
+    name: 
+      - docker-ce-{{ docker_ver }}
+    state: installed
+    update_cache: yes
+
+- name: Create directory
+  file:
+    path: "/etc/docker"
+    state: directory
+
+- name: daemon json
+  template: src=daemon.json.j2 dest=/etc/docker/daemon.json
+
+- name: start docker
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- name: send images
+  copy: src={{ base_dir }}/images/ dest=~/images/
+
+- name: load images
+  shell: "for f in ~/images/*.tar; do docker load -i $f; done"

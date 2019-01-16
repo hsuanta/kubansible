@@ -1,0 +1,19 @@
+- name: remove ntp
+  package: name=ntp state=absent
+
+- name: install chrony
+  package: name=chrony state=latest
+
+- block:
+  - name: modify chrony config 
+    template: src=chrony.conf.j2 dest=/etc/chrony.conf
+    when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+    notify: start chrony
+
+  # - name: start chrony
+    # service: 
+      # name: chronyd 
+      # state: restarted 
+      # enabled: yes
+    # when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+

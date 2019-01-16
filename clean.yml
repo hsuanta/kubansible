@@ -1,0 +1,115 @@
+# WARNING: This playbook will erase the entire k8s-cluster, include PODs, ETCD data etc.
+# Make sure you know what you are doing.
+
+- hosts: cluster
+  tasks:
+  - name: remove networks
+    command: |
+      kubectl
+      --kubeconfig /etc/kubernetes/admin.conf
+      delete -f ~/kube-flannel.yml
+    delegate_to: "{{ groups.cluster[0] }}"
+    run_once: true
+
+  - name: reset kubernetes
+    command: "kubeadm reset"
+
+  - name: stop and disable service
+    systemd:
+      name: "{{ item }}"
+      state: stopped
+      enabled: no
+    with_items:
+    - 'kubelet'
+    - 'docker'
+
+  # - name: remove docker
+    # yum:
+      # name: docker-ce
+      # state: absent
+
+  - name: clean config
+    file:
+      path: /etc/docker
+      state: absent
+
+  - name: remove cluster config
+    file:
+      path: "~/{{ item }}"
+      state: absent
+    with_items:
+    - 'cluster_config.yaml'
+    - 'kube-flannel.yml'
+    - 'images'
+
+  - name: remove iptables rule
+    shell: |
+      iptables -F ;
+      iptables -X ;
+      iptables -Z ;
+      iptables -t nat -F ;
+      iptables -t nat -X ;
+      iptables -t nat -Z 
+
+  - name: remove networks
+    command: "ip link del {{ item }}"
+    with_items:
+    - 'cni0'
+    - 'flannel.1'
+  
+  - name: clean bash completion
+    lineinfile:
+      dest: ~/.bashrc
+      state: absent
+      regexp: 'kubectl completion'
+  ignore_errors: yes
+
+- hosts: etcd
+  tasks:
+  - name: stop and disable etcd service
+    systemd:
+      name: etcd
+      state: stopped
+      enabled: no
+
+  # - name: remove etcd
+    # yum:
+      # name: etcd
+      # state: absent
+
+  - name: clean etcd
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+    - '/var/lib/etcd/member'
+    - '/etc/etcd/etcd.conf'
+    - '/etc/etcd/ca.crt'
+    - '/etc/etcd/etcd.crt'
+    - '/etc/etcd/etcd.key'
+  ignore_errors: yes
+
+- hosts: ha
+  tasks:
+  - name: stop and disable keepalived service
+    systemd:
+      name: keepalived
+      state: stopped
+      enabled: no
+
+  - name: clean keepalived
+    file:
+      path: /etc/keepalived/keepalived.conf
+      state: absent
+
+  ignore_errors: yes
+
+- hosts: deploy
+  tasks:
+  - name: clean deploy
+    file:
+      path: "{{ base_dir }}/{{ item }}"
+      state: absent
+    with_items:
+    - 'key_config.yaml'
+    - 'pki'
