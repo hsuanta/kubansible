@@ -53,7 +53,7 @@ ansible-playbook kubernetes.yml
 ```
 
 ### 验证安装
-如果提示kubectl: command not found，退出重新ssh登陆一下，环境变量生效即可
+如果提The connection to the server localhost:8080 was refused，退出重新ssh登陆一下，环境变量生效即可
 
 ``` bash
 kubectl version
