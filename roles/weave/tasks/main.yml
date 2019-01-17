@@ -1,0 +1,34 @@
+- block:
+
+  - name: get version data
+    shell: "kubectl version | base64 | tr -d '\n'"
+    register: result
+
+  - name: save yaml file
+    get_url:
+      dest: ~/weave.yaml
+      url: https://cloud.weave.works/k8s/net?k8s-version={{ result.stdout }}
+      force: yes
+
+  - name: aplly yaml file
+    command: |
+      kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f ~/weave.yaml
+
+  delegate_to: "{{ groups.cluster[0] }}"
+  run_once: true
+
+- name: install weave client via network
+  get_url:
+    dest: /usr/local/bin/weave
+    url: https://git.io/weave
+    mode: 0755
+    force: yes
+  register: result
+  ignore_errors: yes
+
+- name: copy weave client
+  copy:
+    src: weave
+    dest: /usr/local/bin/weave
+    mode: 0755
+  when: result|failed

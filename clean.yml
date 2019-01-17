@@ -3,13 +3,36 @@
 
 - hosts: cluster
   tasks:
-  - name: remove networks
+  - name: delete flannel networks
     command: |
       kubectl
       --kubeconfig /etc/kubernetes/admin.conf
       delete -f ~/kube-flannel.yml
+    when: "network_cni == 'flannel'"
     delegate_to: "{{ groups.cluster[0] }}"
     run_once: true
+
+  - name: delete weave networks
+    command: |
+      kubectl
+      --kubeconfig /etc/kubernetes/admin.conf
+      delete -f ~/weave.yaml
+    when: "network_cni == 'weave'"
+    delegate_to: "{{ groups.cluster[0] }}"
+    run_once: true
+
+  - name: reset weave
+    command: "weave reset"
+    when: "network_cni == 'weave'"
+
+  # - name: delete calico networks
+    # command: |
+      # kubectl
+      # --kubeconfig /etc/kubernetes/admin.conf
+      # delete -f ~/kube-flannel.yml
+    # when: "network_cni == 'calico'"
+    # delegate_to: "{{ groups.cluster[0] }}"
+    # run_once: true
 
   - name: reset kubernetes
     command: "kubeadm reset"
@@ -51,12 +74,16 @@
       iptables -t nat -X ;
       iptables -t nat -Z 
 
-  - name: remove networks
+  - name: remove nic
     command: "ip link del {{ item }}"
     with_items:
     - 'cni0'
     - 'flannel.1'
-  
+    - 'dummy0'
+
+  - name: delete cni bin
+    command: "rm -rf /opt/cni/bin/*"
+
   - name: clean bash completion
     lineinfile:
       dest: ~/.bashrc

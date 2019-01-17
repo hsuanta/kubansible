@@ -1,12 +1,12 @@
 # kubansible
-`kubansible`提供快速部署高可用`kubernetes`集群的工具,基于外置`etcd`+`kubeadm`方式部署, 利用`ansible-playbook`实现自动化安装,这种模式基本兼容`kubernetes`**v1.9.x** - **v1.11.x** 版本.
+`kubansible`提供一键式部署高可用`kubernetes`集群的工具,基于外置`etcd`+`kubeadm`方式部署, 利用`ansible-playbook`实现自动化安装,这种模式基本兼容`kubernetes`**v1.9.x** - **v1.11.x** 版本.
 
 |组件|支持|
 |:-|:-|
 |OS|CentOS/RedHat 7|
 |kubernetes|v1.9, v1.10, v1.11|
 |docker|17.03.2-ce, 17.12.1-ce|
-|network|flannel|
+|network|flannel, weave|
 |DNS|kubeDNS|
 
 ## 安装指南
@@ -34,7 +34,7 @@ ssh-copy-id $IP #$IP为服务器的地址，按照提示输入yes 和root密码
 
 ### 下载离线镜像
 
-使用`images`目录里的`images_pull.sh`和`images_save.sh`脚本下载/保存`kubernetes`离线镜像.
+使用`images`目录里的`images_pull.sh`和`images_save.sh`脚本下载/保存`kubernetes`离线镜像
 
 ```
 cd images
@@ -43,7 +43,7 @@ bash images_pull.sh && bash images_save.sh
 
 ### 配置集群参数
 
-- 1.将代码文件复制到`/etc/ansible`,然后实际情况修改此hosts文件
+- 1.将代码文件复制到`/etc/ansible`,然后根据实际情况修改hosts文件
 - 2.验证ansible 安装：`ansible all -m ping` 正常能看到节点返回 SUCCESS
 
 

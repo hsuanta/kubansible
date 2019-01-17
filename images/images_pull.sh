@@ -21,9 +21,21 @@ function pulling() {
         docker rmi mirrorgooglecontainers/$imageName
     done
 
+    # to download kubernetes cni images
     # flannel
-    docker pull quay.io/coreos/flannel:v0.9.1-amd64
+    cni=(quay.io/coreos/flannel:v0.9.1-amd64)
 
+    # weave
+    # cni=(weaveworks/weave-npc:2.5.0 weaveworks/weave-kube:2.5.0)
+
+    # calico
+    # cni=()
+
+    for imageName in ${cni[@]} ; do
+        docker pull $imageName
+    done
+
+    # save images to location
     # bash ./images_save.sh
 
 }
@@ -37,4 +49,3 @@ function pulling() {
 [ ! -f ./k8s-dns-kube-dns-amd64.tar ] && pulling
 [ ! -f ./k8s-dns-sidecar-amd64.tar ] && pulling
 [ ! -f ./flannel.tar ] && pulling
-

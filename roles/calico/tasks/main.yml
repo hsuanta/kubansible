@@ -1,0 +1,25 @@
+- block:
+  - name: send calico-etcd config
+    copy:
+      src: etcd.yaml
+      dest: ~/etcd.yaml
+
+  - name: aplly calico-etcd yaml file
+    command: |
+      kubectl
+      --kubeconfig /etc/kubernetes/admin.conf
+      apply -f ~/etcd.yaml
+
+  - name: send calico-node config
+    template:
+      src: calico.yaml.j2
+      dest: ~/calico.yaml
+
+  - name: aplly calico-node yaml file
+    command: |
+      kubectl
+      --kubeconfig /etc/kubernetes/admin.conf
+      apply -f ~/calico.yaml
+
+  delegate_to: "{{ groups.cluster[0] }}"
+  run_once: true

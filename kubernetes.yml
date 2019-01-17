@@ -6,6 +6,7 @@
 # to create CA on 'deploy' node
 - hosts: deploy
   roles:
+  # - download
   - deploy
 
 - hosts: cluster
@@ -15,6 +16,8 @@
   - etcd
   - kubeadm
   - { role: flannel, when: "network_cni == 'flannel'" }
+  - { role: weave, when: "network_cni == 'weave'" }
+  - { role: calico, when: "network_cni == 'calico'" }
 
 - hosts: ha
   roles:

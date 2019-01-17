@@ -30,13 +30,13 @@ pod_network="10.244.0.0/16"
 # 集群 DNS 域名
 cluster_domain="cluster.local"
 
-#网络插件
+#网络插件，支持flannel、weave。
 network_cni="flannel"
 
 #证书目录
 ca_dir="/etc/kubernetes/pki"
 
-#部署目录，即 ansible 工作目录，建议不要修改
+#ansible 工作目录
 base_dir="/etc/ansible"
 
 #时间源服务器
