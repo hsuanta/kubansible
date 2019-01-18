@@ -30,7 +30,7 @@ pod_network="10.244.0.0/16"
 # 集群 DNS 域名
 cluster_domain="cluster.local"
 
-#网络插件，支持flannel、weave。
+#网络插件，支持flannel、weave
 network_cni="flannel"
 
 #证书目录

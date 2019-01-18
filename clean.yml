@@ -25,14 +25,14 @@
     command: "weave reset"
     when: "network_cni == 'weave'"
 
-  # - name: delete calico networks
-    # command: |
-      # kubectl
-      # --kubeconfig /etc/kubernetes/admin.conf
-      # delete -f ~/kube-flannel.yml
-    # when: "network_cni == 'calico'"
-    # delegate_to: "{{ groups.cluster[0] }}"
-    # run_once: true
+  - name: delete calico networks
+    command: |
+      kubectl
+      --kubeconfig /etc/kubernetes/admin.conf
+      delete -f ~/calico.yaml
+    when: "network_cni == 'calico'"
+    delegate_to: "{{ groups.cluster[0] }}"
+    run_once: true
 
   - name: reset kubernetes
     command: "kubeadm reset"
@@ -81,8 +81,29 @@
     - 'flannel.1'
     - 'dummy0'
 
+  - name: remove ipip
+    command: "modprobe -r ipip"
+    when: "network_cni == 'calico'"
+
+  - name: clean calico routes
+    shell: |
+      for rt in $(ip route|grep bird|sed 's/blackhole//'|awk '{print $1}');
+      do ip route del $rt; done;
+    when: "network_cni == 'calico'"
+
+  - name: clean calico nic
+    shell: |
+      for nic in $(ls /sys/class/net/ |grep cali);
+      do ip link del $nic; done;
+    when: "network_cni == 'calico'"
+
+  - name: destroy ipset
+    command: "ipset destroy"
+
   - name: delete cni bin
-    command: "rm -rf /opt/cni/bin/*"
+    file:
+      path: "/opt/cni/bin"
+      state: absent
 
   - name: clean bash completion
     lineinfile:

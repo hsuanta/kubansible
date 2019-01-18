@@ -22,6 +22,14 @@
 
 ## Network cni images
 
+### calico
+
+|Image Name|version|
+|:-|:-|
+|quay.io/calico/node|v2.6.12|
+|quay.io/calico/cni|v1.11.8|
+|quay.io/calico/kube-controllers|v1.0.5|
+
 ### flannel
 
 |Image Name|version|
@@ -34,3 +42,5 @@
 |:-|:-|
 |weaveworks/weave-kube|2.5.0|
 |weaveworks/weave-npc|2.5.0|
+|weaveworks/weaveexec|2.5.0|
+

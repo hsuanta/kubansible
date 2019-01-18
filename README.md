@@ -6,7 +6,7 @@
 |OS|CentOS/RedHat 7|
 |kubernetes|v1.9, v1.10, v1.11|
 |docker|17.03.2-ce, 17.12.1-ce|
-|network|flannel, weave|
+|network|flannel, weave, calico|
 |DNS|kubeDNS|
 
 ## 安装指南

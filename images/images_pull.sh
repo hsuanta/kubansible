@@ -26,10 +26,10 @@ function pulling() {
     cni=(quay.io/coreos/flannel:v0.9.1-amd64)
 
     # weave
-    # cni=(weaveworks/weave-npc:2.5.0 weaveworks/weave-kube:2.5.0)
+    # cni=(weaveworks/weave-npc:2.5.0 weaveworks/weave-kube:2.5.0 weaveworks/weaveexec:2.5.0)
 
     # calico
-    # cni=()
+    # cni=(quay.io/calico/node:v2.6.12 quay.io/calico/cni:v1.11.8 quay.io/calico/kube-controllers:v1.0.5)
 
     for imageName in ${cni[@]} ; do
         docker pull $imageName

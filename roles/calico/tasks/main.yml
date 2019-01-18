@@ -1,21 +1,37 @@
 - block:
-  - name: send calico-etcd config
-    copy:
-      src: etcd.yaml
-      dest: ~/etcd.yaml
+  - name: get etcd key content
+    shell: "base64 -w0 {{ ETCD_KEY }}"
+    register: etcd_key_b64encode
 
-  - name: aplly calico-etcd yaml file
+  - name: get etcd certificate content
+    shell: "base64 -w0 {{ ETCD_CRT }}"
+    register: etcd_crt_b64encode
+
+  - name: get etcd ca certificate content
+    shell: "base64 -w0 {{ ETCD_CA_CRT }}"
+    register: etcd_ca_b64encode
+
+  # - debug: msg="{{ etcd_key_b64encode.stdout }}"
+  # - debug: msg="{{ etcd_crt_b64encode.stdout }}"
+  # - debug: msg="{{ etcd_ca_b64encode.stdout }}"
+
+  - name: send rbac config
+    copy:
+      src: rbac.yaml
+      dest: ~/rbac.yaml
+
+  - name: aplly rbac config
     command: |
       kubectl
       --kubeconfig /etc/kubernetes/admin.conf
-      apply -f ~/etcd.yaml
+      apply -f ~/rbac.yaml
 
-  - name: send calico-node config
+  - name: send calico config
     template:
       src: calico.yaml.j2
       dest: ~/calico.yaml
 
-  - name: aplly calico-node yaml file
+  - name: aplly calico config
     command: |
       kubectl
       --kubeconfig /etc/kubernetes/admin.conf

@@ -1,0 +1,8 @@
+# etcd endpoints
+NODES: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+ETCD_ENDS: "{{ NODES.rstrip(',') }}"
+
+ETCD_PKI_DIR: "/etc/etcd"
+ETCD_CA_CRT: "{{ ETCD_PKI_DIR }}/ca.crt"
+ETCD_KEY: "{{ ETCD_PKI_DIR }}/etcd.key"
+ETCD_CRT: "{{ ETCD_PKI_DIR }}/etcd.crt"
