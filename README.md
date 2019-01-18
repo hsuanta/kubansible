@@ -34,7 +34,7 @@ ssh-copy-id $IP #$IP为服务器的地址，按照提示输入yes 和root密码
 
 ### 下载离线镜像
 
-使用`images`目录里的`images_pull.sh`和`images_save.sh`脚本下载/保存`kubernetes`离线镜像
+使用`images`目录里的`images_pull.sh`和`images_save.sh`脚本下载/保存`kubernetes`镜像
 
 ```
 cd images
