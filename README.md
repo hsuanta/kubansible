@@ -27,7 +27,8 @@ CentOS 7 请执行以下脚本：
 yum install -y ansible
 # 配置ansible ssh密钥登陆
 ssh-keygen
-ssh-copy-id $IP #$IP为服务器的地址，按照提示输入yes 和root密码
+#$IP为服务器的地址，按照提示输入yes 和root密码
+ssh-copy-id $IP
 ```
 
 ## 使用指南
